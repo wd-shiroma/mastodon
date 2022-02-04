@@ -967,6 +967,17 @@
   }
 }
 
+.status__content__edited-label {
+  display: block;
+  cursor: default;
+  font-size: 15px;
+  line-height: 20px;
+  padding: 0;
+  padding-top: 8px;
+  color: $dark-text-color;
+  font-weight: 500;
+}
+
 .status__content__spoiler-link {
   display: inline-block;
   border-radius: 2px;
@@ -1307,6 +1318,29 @@
     overflow: hidden;
     text-decoration: none;
     font-size: 14px;
+
+    &--with-note {
+      strong {
+        display: inline;
+      }
+    }
+  }
+
+  &__note {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: $ui-secondary-color;
+  }
+}
+
+.follow-recommendations-account {
+  .icon-button {
+    color: $ui-primary-color;
+
+    &.active {
+      color: $valid-value-color;
+    }
   }
 }
 
@@ -2459,6 +2493,72 @@ a.account__display-name {
   border-color: darken($ui-base-color, 8%);
 }
 
+.column-title {
+  text-align: center;
+  padding: 40px;
+
+  .logo {
+    fill: $primary-text-color;
+    width: 50px;
+    margin: 0 auto;
+    margin-bottom: 40px;
+  }
+
+  h3 {
+    font-size: 24px;
+    line-height: 1.5;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    color: $darker-text-color;
+  }
+}
+
+.follow-recommendations-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.column-actions {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  padding: 40px;
+  padding-top: 40px;
+  padding-bottom: 200px;
+  flex-grow: 1;
+  position: relative;
+
+  &__background {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 220px;
+    width: auto;
+  }
+}
+
+.column-list {
+  margin: 0 20px;
+  border: 1px solid lighten($ui-base-color, 8%);
+  background: darken($ui-base-color, 2%);
+  border-radius: 4px;
+
+  &__empty-message {
+    padding: 40px;
+    text-align: center;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    color: $darker-text-color;
+  }
+}
+
 .compose-panel {
   width: 285px;
   margin-top: 10px;
@@ -2733,7 +2833,7 @@ a.account__display-name {
   transition: background-color 0.2s ease;
 }
 
-.react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
+.react-toggle:is(:hover, :focus-within):not(.react-toggle--disabled) .react-toggle-track {
   background-color: darken($ui-base-color, 10%);
 }
 
@@ -2741,7 +2841,7 @@ a.account__display-name {
   background-color: $ui-highlight-color;
 }
 
-.react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
+.react-toggle--checked:is(:hover, :focus-within):not(.react-toggle--disabled) .react-toggle-track {
   background-color: lighten($ui-highlight-color, 10%);
 }
 
@@ -2884,6 +2984,7 @@ a.account__display-name {
     flex: 0 0 auto;
     padding: 10px;
     padding-top: 20px;
+    z-index: 1;
 
     ul {
       margin-bottom: 10px;
@@ -2932,13 +3033,13 @@ a.account__display-name {
     }
 
     @media screen and (max-height: 810px) {
-      .trends__item:nth-child(3) {
+      .trends__item:nth-of-type(3) {
         display: none;
       }
     }
 
     @media screen and (max-height: 720px) {
-      .trends__item:nth-child(2) {
+      .trends__item:nth-of-type(2) {
         display: none;
       }
     }
@@ -2984,17 +3085,20 @@ a.account__display-name {
   box-sizing: border-box;
   width: 100%;
   margin: 0;
-  color: $inverted-text-color;
-  background: $simple-background-color;
-  padding: 10px;
+  color: $darker-text-color;
+  background: transparent;
+  padding: 7px 0;
   font-family: inherit;
   font-size: 14px;
   resize: vertical;
   border: 0;
+  border-bottom: 2px solid $ui-primary-color;
   outline: 0;
-  border-radius: 4px;
 
-  &:focus {
+  &:focus,
+  &:active {
+    color: $primary-text-color;
+    border-bottom-color: $ui-highlight-color;
     outline: 0;
   }
 
@@ -3458,10 +3562,15 @@ a.status-card.compact:hover {
 }
 
 .column-header__setting-btn {
-  &:hover {
+  &:hover,
+  &:focus {
     color: $darker-text-color;
     text-decoration: underline;
   }
+}
+
+.column-header__collapsible__extra + .column-header__setting-btn {
+  padding-top: 5px;
 }
 
 .column-header__permission-btn {
@@ -3474,10 +3583,15 @@ a.status-card.compact:hover {
   float: right;
 
   .column-header__setting-btn {
-    padding: 0 10px;
+    padding: 5px;
+
+    &:first-child {
+      padding-right: 7px;
+    }
 
     &:last-child {
-      padding-right: 0;
+      padding-left: 7px;
+      margin-left: 5px;
     }
   }
 }
@@ -3521,7 +3635,6 @@ a.status-card.compact:hover {
   span {
     display: block;
     float: left;
-    margin-left: 50%;
     transform: translateX(-50%);
     margin: 82px 0 0 50%;
     white-space: nowrap;
@@ -3823,7 +3936,8 @@ a.status-card.compact:hover {
     }
 
     &__multi-value__label,
-    &__input {
+    &__input,
+    &__input-container {
       color: $darker-text-color;
     }
 
@@ -4208,6 +4322,7 @@ a.status-card.compact:hover {
   border-radius: 4px;
   margin-left: 40px;
   overflow: hidden;
+  z-index: 2;
 
   &.top {
     transform-origin: 50% 100%;
@@ -4216,6 +4331,15 @@ a.status-card.compact:hover {
   &.bottom {
     transform-origin: 50% 0;
   }
+}
+
+.modal-root__container .privacy-dropdown {
+  flex-grow: 0;
+}
+
+.modal-root__container .privacy-dropdown__dropdown {
+  pointer-events: auto;
+  z-index: 9999;
 }
 
 .privacy-dropdown__option {
@@ -4461,6 +4585,7 @@ a.status-card.compact:hover {
   right: 0;
   bottom: 0;
   background: rgba($base-overlay-background, 0.7);
+  transition: background 0.5s;
 }
 
 .modal-root__container {
@@ -4631,6 +4756,13 @@ a.status-card.compact:hover {
         &:focus {
           background: rgba($gold-star, 0.3);
         }
+      }
+
+      &.disabled {
+        color: $white;
+        background-color: transparent;
+        cursor: default;
+        opacity: 0.4;
       }
     }
   }
@@ -5203,9 +5335,10 @@ a.status-card.compact:hover {
 .report-modal__target {
   padding: 15px;
 
-  .media-modal__close {
-    top: 14px;
-    right: 15px;
+  .report-modal__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
   }
 }
 
@@ -5434,7 +5567,8 @@ a.status-card.compact:hover {
     opacity: 0.2;
   }
 
-  .video-player__buttons button {
+  .video-player__buttons button,
+  .video-player__buttons a {
     color: currentColor;
     opacity: 0.75;
 
@@ -6675,6 +6809,17 @@ noscript {
       }
     }
 
+    .account__header__joined {
+      font-size: 14px;
+      padding: 5px 15px;
+      color: $darker-text-color;
+
+      .columns-area--mobile & {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+    }
+
     .account__header__fields {
       margin: 0;
       border-top: 1px solid lighten($ui-base-color, 12%);
@@ -6825,7 +6970,6 @@ noscript {
     &__current {
       flex: 0 0 auto;
       font-size: 24px;
-      line-height: 36px;
       font-weight: 500;
       text-align: right;
       padding-right: 15px;
@@ -6847,6 +6991,58 @@ noscript {
         fill: none !important;
       }
     }
+
+    &--requires-review {
+      .trends__item__name {
+        color: $gold-star;
+
+        a {
+          color: $gold-star;
+        }
+      }
+
+      .trends__item__current {
+        color: $gold-star;
+      }
+
+      .trends__item__sparkline {
+        path:first-child {
+          fill: rgba($gold-star, 0.25) !important;
+        }
+
+        path:last-child {
+          stroke: lighten($gold-star, 6%) !important;
+        }
+      }
+    }
+
+    &--disabled {
+      .trends__item__name {
+        color: lighten($ui-base-color, 12%);
+
+        a {
+          color: lighten($ui-base-color, 12%);
+        }
+      }
+
+      .trends__item__current {
+        color: lighten($ui-base-color, 12%);
+      }
+
+      .trends__item__sparkline {
+        path:first-child {
+          fill: rgba(lighten($ui-base-color, 12%), 0.25) !important;
+        }
+
+        path:last-child {
+          stroke: lighten(lighten($ui-base-color, 12%), 6%) !important;
+        }
+      }
+    }
+  }
+
+  &--compact &__item {
+    padding: 10px;
   }
 }
 
@@ -7172,6 +7368,7 @@ noscript {
     &__account {
       display: flex;
       text-decoration: none;
+      overflow: hidden;
     }
 
     .account__avatar {
