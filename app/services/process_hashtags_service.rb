@@ -3,6 +3,19 @@
 require 'mecab'
 
 class ProcessHashtagsService < BaseService
+  def call(status, raw_tags = [])
+    @status        = status
+    @account       = status.account
+    @raw_tags      = status.local? ? Extractor.extract_hashtags(status.text) : raw_tags
+    @previous_tags = status.tags.to_a
+    @current_tags  = []
+
+    update_mia_tags!
+    assign_tags!
+    update_featured_tags!
+  end
+
+  private
 
   DEFAULT_TAG = 'メイドインアビス'
 
@@ -58,15 +71,37 @@ class ProcessHashtagsService < BaseService
   CONSIDERATION_RE = %r{【考察】}
   CONSIDERATION_TAG = 'メイドインアビス考察班'
 
-  def call(status, tags = [])
-    tags    = Extractor.extract_hashtags(status.text) if status.local?
-    records = []
+  def assign_tags!
+    @status.tags = @current_tags = Tag.find_or_create_by_names(@raw_tags)
+  end
+
+  def update_featured_tags!
+    return unless @status.distributable?
+
+    added_tags = @current_tags - @previous_tags
+
+    unless added_tags.empty?
+      @account.featured_tags.where(tag_id: added_tags.map(&:id)).each do |featured_tag|
+        featured_tag.increment(@status.created_at)
+      end
+    end
+
+    removed_tags = @previous_tags - @current_tags
+
+    unless removed_tags.empty?
+      @account.featured_tags.where(tag_id: removed_tags.map(&:id)).each do |featured_tag|
+        featured_tag.decrement(@status.id)
+      end
+    end
+  end
+
+  def update_mia_tags!
 
     is_keyword = false
 
-    if !status.reply? then
+    if !@status.reply? then
       tagger = MeCab::Tagger.new
-      node = tagger.parseToNode(status.text)
+      node = tagger.parseToNode(@status.text)
 
       status_words = []
       while node do
@@ -75,7 +110,7 @@ class ProcessHashtagsService < BaseService
         node = node.next
       end
 
-      node = tagger.parseToNode(status.spoiler_text)
+      node = tagger.parseToNode(@status.spoiler_text)
 
       while node do
         features = node.feature.split(',')
@@ -84,10 +119,10 @@ class ProcessHashtagsService < BaseService
       end
 
       KEYWORDS.each do |kw|
-        if kw[:keyword_re] && ( status.text =~ kw[:keyword_re] || status.spoiler_text =~ kw[:keyword_re] ) then
+        if kw[:keyword_re] && ( @status.text =~ kw[:keyword_re] || @status.spoiler_text =~ kw[:keyword_re] ) then
           is_keyword = true
           if kw[:keyword_tag] then
-            tags << kw[:keyword_tag]
+            @raw_tags << kw[:keyword_tag]
           end
         end
         if kw[:keyword_ma] then
@@ -95,7 +130,7 @@ class ProcessHashtagsService < BaseService
             if kw[:keyword_ma].include?(wd) then
               is_keyword = true
               if kw[:keyword_tag] then
-                tags << kw[:keyword_tag]
+                @raw_tags << kw[:keyword_tag]
               end
             end
           end
@@ -104,27 +139,15 @@ class ProcessHashtagsService < BaseService
     end
 
     if is_keyword then
-      tags << DEFAULT_TAG
+      @raw_tags << DEFAULT_TAG
     end
 
-    if status.spoiler_text =~ CONSIDERATION_RE then
-      tags << CONSIDERATION_TAG
+    if @status.spoiler_text =~ CONSIDERATION_RE then
+      @raw_tags << CONSIDERATION_TAG
     end
 
-    if Rails.configuration.x.default_hashtag.present? && status.visibility == 'public' && status.local? && !status.reply? then
-      tags << Rails.configuration.x.default_hashtag
-    end
-
-    Tag.find_or_create_by_names(tags) do |tag|
-      status.tags << tag
-      records << tag
-      tag.update(last_status_at: status.created_at) if tag.last_status_at.nil? || (tag.last_status_at < status.created_at && tag.last_status_at < 12.hours.ago)
-    end
-
-    return unless status.distributable?
-
-    status.account.featured_tags.where(tag_id: records.map(&:id)).each do |featured_tag|
-      featured_tag.increment(status.created_at)
+    if Rails.configuration.x.default_hashtag.present? && @status.visibility == 'public' && @status.local? && !@status.reply? then
+      @raw_tags << Rails.configuration.x.default_hashtag
     end
   end
 end
