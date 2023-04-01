@@ -958,7 +958,7 @@ const startWorker = async (workerId) => {
       break;
     case 'public:local':
       resolve({
-        channelIds: ['timeline:public:local'],
+        channelIds: ['timeline:hashtag:メイドインアビス'],
         options: { needsFiltering: true },
       });
 
@@ -979,7 +979,7 @@ const startWorker = async (workerId) => {
       break;
     case 'public:local:media':
       resolve({
-        channelIds: ['timeline:public:local:media'],
+        channelIds: ['timeline:hashtag:メイドインアビス:media'],
         options: { needsFiltering: true },
       });
 
