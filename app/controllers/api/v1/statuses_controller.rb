@@ -36,13 +36,14 @@ class Api::V1::StatusesController < Api::BaseController
   end
 
   def create
+    re = /((?:\@[a-zA-Z0-9_]+(?:\@[a-zA-Z0-9_\-.]+)?\s)*).*?([～ー…。、！？!?]+)|.+$/
     @status = PostStatusService.new.call(
       current_user.account,
-      text: status_params[:status],
+      text: (status_params[:status] || '').length > 0 ? status_params[:status].gsub(re, '\1んなぁ\2\3') : '',
       thread: @thread,
       media_ids: status_params[:media_ids],
       sensitive: status_params[:sensitive],
-      spoiler_text: status_params[:spoiler_text],
+      spoiler_text: (status_params[:spoiler_text] || '').length > 0 ? status_params[:spoiler_text].gsub(re, '\1んなぁ\2\3') : '',
       visibility: status_params[:visibility],
       language: status_params[:language],
       scheduled_at: status_params[:scheduled_at],
