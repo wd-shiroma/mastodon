@@ -288,7 +288,6 @@ br:
     view: 'Sellet :'
     view_status: Gwelet ar c'hannad
   auth:
-    change_password: Ger-tremen
     delete_account: Dilemel ar gont
     login: Mont tre
     logout: Digennaskañ
@@ -298,15 +297,8 @@ br:
     register: Lakaat ho anv
     reset_password: Adderaouekaat ar ger-tremen
     security: Diogelroez
-    setup:
-      title: Kefluniañ
     status:
       account_status: Statud ar gont
-  authorize_follow:
-    follow: Heuliañ
-    post_follow:
-      web: Distreiñ d'an etrefas web
-    title: Heuliañ %{acct}
   challenge:
     confirm: Kenderc' hel
     invalid_password: Ger-tremen diwiriek
@@ -505,9 +497,6 @@ br:
       '604800': 1 sizhunvezh
       '63113904': 2 vloavezh
       '7889238': 3 months
-  stream_entries:
-    pinned: Toud spilhennet
-    reblogged: en·he deus skignet
   themes:
     default: Mastodoñ (Teñval)
     mastodon-light: Mastodoñ (Sklaer)

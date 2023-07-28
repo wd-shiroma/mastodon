@@ -22,7 +22,9 @@ class Scheduler::VacuumScheduler
       preview_cards_vacuum,
       backups_vacuum,
       access_tokens_vacuum,
+      applications_vacuum,
       feeds_vacuum,
+      imports_vacuum,
     ]
   end
 
@@ -48,6 +50,14 @@ class Scheduler::VacuumScheduler
 
   def feeds_vacuum
     Vacuum::FeedsVacuum.new
+  end
+
+  def imports_vacuum
+    Vacuum::ImportsVacuum.new
+  end
+
+  def applications_vacuum
+    Vacuum::ApplicationsVacuum.new
   end
 
   def content_retention_policy
